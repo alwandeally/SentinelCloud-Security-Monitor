@@ -1,0 +1,163 @@
+﻿@page "/upload"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Forms
+@using System.Net.Http.Headers
+
+<h1>Upload Security Logs</h1>
+
+<div class="upload-card">
+    <p class="upload-text">
+        Select a CSV log file to analyze suspicious activity and generate alerts.
+    </p>
+
+    <InputFile OnChange="HandleFileSelected" class="file-input" />
+
+    @if (_selectedFile != null)
+    {
+        <p class="file-name">Selected file: <strong>@_selectedFile.Name</strong></p>
+    }
+
+    <button class="upload-btn" @onclick="UploadFile" disabled="@(_selectedFile == null || isUploading)">
+        @(isUploading ? "Uploading..." : "Upload Logs")
+    </button>
+
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <div class="message-box @(isSuccess ? "success-message" : "error-message")">
+            @message
+        </div>
+    }
+</div>
+
+<style>
+    .upload-card {
+        margin-top: 25px;
+        max-width: 700px;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+    }
+
+    .upload-text {
+        font-size: 16px;
+        color: #374151;
+        margin-bottom: 20px;
+    }
+
+    .file-input {
+        margin-bottom: 15px;
+    }
+
+    .file-name {
+        margin-top: 10px;
+        margin-bottom: 20px;
+        color: #111827;
+    }
+
+    .upload-btn {
+        background: #2563eb;
+        color: white;
+        border: none;
+        padding: 12px 22px;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+        .upload-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .upload-btn:disabled {
+            background: #93c5fd;
+            cursor: not-allowed;
+        }
+
+    .message-box {
+        margin-top: 20px;
+        padding: 14px 16px;
+        border-radius: 10px;
+        font-weight: 600;
+    }
+
+    .success-message {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #86efac;
+    }
+
+    .error-message {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+    }
+</style>
+
+@code {
+
+    private IBrowserFile? _selectedFile;
+    private string? message;
+    private bool isUploading;
+    private bool isSuccess;
+
+    void HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        _selectedFile = e.File;
+        message = null;
+        isSuccess = false;
+    }
+
+    async Task UploadFile()
+    {
+        if (_selectedFile == null)
+            return;
+
+        isUploading = true;
+        message = null;
+
+        try
+        {
+            using var content = new MultipartFormDataContent();
+
+            var stream = _selectedFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+            var streamContent = new StreamContent(stream);
+
+            streamContent.Headers.ContentType =
+                new MediaTypeHeaderValue(_selectedFile.ContentType);
+
+            content.Add(streamContent, "file", _selectedFile.Name);
+
+            using var http = new HttpClient();
+
+            var response = await http.PostAsync(
+                "https://localhost:7218/api/Logs/upload",
+                content
+            );
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                message = $"Upload successful. Server response: {result}";
+                isSuccess = true;
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                message = $"Upload failed. Server response: {error}";
+                isSuccess = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error: {ex.Message}";
+            isSuccess = false;
+        }
+        finally
+        {
+            isUploading = false;
+        }
+    }
+}

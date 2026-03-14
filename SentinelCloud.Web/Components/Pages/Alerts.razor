@@ -1,0 +1,214 @@
+﻿@page "/alerts"
+@rendermode InteractiveServer
+@using System.Net.Http.Json
+@inject HttpClient Http
+
+<h1>Security Alerts</h1>
+
+@if (alerts == null)
+{
+    <p>Loading alerts...</p>
+}
+else if (alerts.Count == 0)
+{
+    <p>No alerts found.</p>
+}
+else
+{
+    <div class="alerts-container">
+        <table class="alerts-table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Title</th>
+                    <th>Severity</th>
+                    <th>IP Address</th>
+                    <th>Created At</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var alert in alerts)
+                {
+                    <tr>
+                        <td>@alert.id</td>
+                        <td>@alert.title</td>
+                        <td>
+                            <span class="severity-badge @GetSeverityClass(alert.severity)">
+                                @GetSeverityText(alert.severity)
+                            </span>
+                        </td>
+                        <td>@alert.ipAddress</td>
+                        <td>@alert.createdAt.ToString("g")</td>
+                        <td>
+                            <span class="status-badge @(alert.isResolved ? "resolved" : "unresolved")">
+                                @(alert.isResolved ? "Resolved" : "Unresolved")
+                            </span>
+                        </td>
+                        <td>
+                            @if (!alert.isResolved)
+                            {
+                                <button class="resolve-btn" @onclick="() => ResolveAlert(alert.id)">
+                                    Resolve Alert
+                                </button>
+                            }
+                            else
+                            {
+                                <span class="done-text">No action needed</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<style>
+    .alerts-container {
+        margin-top: 25px;
+        overflow-x: auto;
+    }
+
+    .alerts-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+    }
+
+        .alerts-table th {
+            background: #111827;
+            color: white;
+            text-align: left;
+            padding: 14px;
+            font-size: 15px;
+        }
+
+        .alerts-table td {
+            padding: 14px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 15px;
+            vertical-align: middle;
+        }
+
+        .alerts-table tr:hover {
+            background: #f9fafb;
+        }
+
+    .severity-badge,
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: bold;
+        color: white;
+    }
+
+    .severity-high {
+        background: #dc2626;
+    }
+
+    .severity-medium {
+        background: #f59e0b;
+    }
+
+    .severity-low {
+        background: #16a34a;
+    }
+
+    .resolved {
+        background: #16a34a;
+    }
+
+    .unresolved {
+        background: #ea580c;
+    }
+
+    .resolve-btn {
+        background: #2563eb;
+        color: white;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+        .resolve-btn:hover {
+            background: #1d4ed8;
+        }
+
+    .done-text {
+        color: #6b7280;
+        font-size: 13px;
+        font-weight: 600;
+    }
+</style>
+
+@code {
+    private List<AlertItem>? alerts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAlerts();
+    }
+
+    private async Task LoadAlerts()
+    {
+        alerts = await Http.GetFromJsonAsync<List<AlertItem>>("https://localhost:7218/api/Alerts");
+    }
+
+    private async Task ResolveAlert(int alertId)
+    {
+        var response = await Http.PatchAsync($"https://localhost:7218/api/Alerts/{alertId}/resolve", null);
+
+        if (response.IsSuccessStatusCode)
+        {
+            await LoadAlerts();
+            StateHasChanged();
+        }
+    }
+
+    private string GetSeverityText(int severity)
+    {
+        return severity switch
+        {
+            3 => "High",
+            2 => "Medium",
+            1 => "Low",
+            _ => "Unknown"
+        };
+    }
+
+    private string GetSeverityClass(int severity)
+    {
+        return severity switch
+        {
+            3 => "severity-high",
+            2 => "severity-medium",
+            1 => "severity-low",
+            _ => "severity-low"
+        };
+    }
+
+    public class AlertItem
+    {
+        public int id { get; set; }
+        public int alertType { get; set; }
+        public int severity { get; set; }
+        public string? title { get; set; }
+        public string? description { get; set; }
+        public string? ipAddress { get; set; }
+        public DateTime createdAt { get; set; }
+        public int relatedEventCount { get; set; }
+        public bool isResolved { get; set; }
+    }
+}
+

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="SentinelCloud.Api/SentinelCloud.Api.csproj" />
+  <Project Path="SentinelCloud.Core/SentinelCloud.Core.csproj" />
+  <Project Path="SentinelCloud.Infrastructure/SentinelCloud.Infrastructure.csproj" />
+  <Project Path="SentinelCloud.Web/SentinelCloud.Web.csproj" />
+</Solution>
