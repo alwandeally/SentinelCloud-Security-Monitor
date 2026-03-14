@@ -1,0 +1,161 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@using System.Net.Http.Json
+@inject HttpClient Http
+@implements IDisposable
+
+<h1>SentinelCloud Security Dashboard</h1>
+
+@if (stats == null)
+{
+    <p>Loading dashboard...</p>
+}
+else
+{
+    <div class="dashboard-grid">
+
+        <div class="stat-card blue">
+            <div class="stat-title">Total Logs</div>
+            <div class="stat-value">@stats.totalLogs</div>
+        </div>
+
+        <div class="stat-card purple">
+            <div class="stat-title">Total Alerts</div>
+            <div class="stat-value">@stats.totalAlerts</div>
+        </div>
+
+        <div class="stat-card red">
+            <div class="stat-title">High Severity Alerts</div>
+            <div class="stat-value">@stats.highSeverityAlerts</div>
+        </div>
+
+        <div class="stat-card green">
+            <div class="stat-title">Resolved Alerts</div>
+            <div class="stat-value">@stats.resolvedAlerts</div>
+        </div>
+
+        <div class="stat-card orange">
+            <div class="stat-title">Unresolved Alerts</div>
+            <div class="stat-value">@stats.unresolvedAlerts</div>
+        </div>
+
+        <div class="stat-card dark">
+            <div class="stat-title">Most Attacked IP</div>
+            <div class="stat-value">@stats.mostAttackedIp</div>
+        </div>
+
+    </div>
+
+    <p class="refresh-note">Dashboard auto-refreshes every 10 seconds.</p>
+}
+
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 30px;
+    }
+
+    .stat-card {
+        padding: 25px;
+        border-radius: 10px;
+        color: white;
+        font-weight: 500;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    }
+
+    .stat-title {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    .stat-value {
+        font-size: 32px;
+        font-weight: bold;
+    }
+
+    .refresh-note {
+        margin-top: 20px;
+        color: #374151;
+        font-size: 14px;
+        font-style: italic;
+    }
+
+    .blue {
+        background: #2563eb;
+    }
+
+    .purple {
+        background: #7c3aed;
+    }
+
+    .red {
+        background: #dc2626;
+    }
+
+    .green {
+        background: #16a34a;
+    }
+
+    .orange {
+        background: #ea580c;
+    }
+
+    .dark {
+        background: #1f2937;
+    }
+</style>
+
+@code {
+    private DashboardStats? stats;
+    private PeriodicTimer? timer;
+    private CancellationTokenSource cancellationTokenSource = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDashboard();
+
+        timer = new PeriodicTimer(TimeSpan.FromSeconds(10));
+        _ = RefreshLoop();
+    }
+
+    private async Task LoadDashboard()
+    {
+        stats = await Http.GetFromJsonAsync<DashboardStats>(
+            "https://localhost:7218/api/Dashboard/stats");
+    }
+
+    private async Task RefreshLoop()
+    {
+        try
+        {
+            while (timer != null &&
+                   await timer.WaitForNextTickAsync(cancellationTokenSource.Token))
+            {
+                await LoadDashboard();
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    public void Dispose()
+    {
+        cancellationTokenSource.Cancel();
+        timer?.Dispose();
+        cancellationTokenSource.Dispose();
+    }
+
+    class DashboardStats
+    {
+        public int totalLogs { get; set; }
+        public int totalAlerts { get; set; }
+        public int resolvedAlerts { get; set; }
+        public int unresolvedAlerts { get; set; }
+        public int highSeverityAlerts { get; set; }
+        public string? mostAttackedIp { get; set; }
+    }
+}
