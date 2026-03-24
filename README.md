@@ -174,35 +174,123 @@ The UI communicates with the backend API to retrieve data and display security i
 
 ---
 
-# Running the Project
+## 🚀 Getting Started (Run the Project Locally)
 
-### Clone the repository
+Follow these step-by-step instructions to run the SentinelCloud system on your computer.
+
+---
+
+### 🧾 Prerequisites
+
+Before starting, ensure you have the following installed:
+
+- **Visual Studio 2022 or later**  
+  https://visualstudio.microsoft.com/
+
+- **.NET 6 SDK or later**  
+  https://dotnet.microsoft.com/download
+
+- **SQL Server (LocalDB or full version)**  
+  (Usually installed automatically with Visual Studio)
+
+---
+
+### 📥 1. Clone the Repository
+
+Open a terminal (or Git Bash) and run:
 
 ```bash
 git clone https://github.com/alwandeally/SentinelCloud-Security-Monitor.git
 ```
 
-### Open the solution
+### 2.Navigate into the project folder:
 
-Open:
+```
+cd SentinelCloud-Security-Monitor
+```
+--
+
+### 🧱 2. Open the Project in Visual Studio
+
+1. Open Visual Studio
+2. Click "Open a project or solution"
+3. Select:
 
 ```
 SentinelCloud.sln
 ```
 
-in **Visual Studio**.
+## 📦 3. Restore Required Packages
 
-### Run the application
+Visual Studio usually restores packages automatically.
 
-Set **SentinelCloud.Web** as the startup project and run the application.
+If not:
 
-Then navigate to:
+Go to:
+Tools → NuGet Package Manager → Manage NuGet Packages
+Click Restore
+
+Or run:
 
 ```
-https://localhost
+dotnet restore
 ```
+## 🧠 4. Run the Backend (API)
+
+This starts the core system logic and API endpoints.
+
+Steps:
+1. In Solution Explorer, locate:
+```
+SentinelCloud.Api
+```
+
+2. Right-click it → select:
+ ```  
+Set as Startup Project
+```
+3. Press:
+```
+F5
+```
+--
+## 5.🖥️ Access the Dashboard
+
+1.Your browser will open:
+
+```
+https://localhost:xxxx/
+```
+You will now see:
+
+1.Security dashboard
+2.Alerts page
+3.Log upload interface
+
+--
+
+##🔁 6. Full System Workflow
+1.Upload authentication logs through the web interface
+2.The backend API processes the logs
+3.Suspicious activity is detected
+4.Alerts are generated and displayed
+5.Dashboard updates automatically
+
+--
+
+##⚠️ 7.Troubleshooting
+1.If the API does not start → ensure .Api is set as startup project
+2.If the UI shows no data → ensure the API is running
+3.If ports are busy → restart Visual Studio
 
 ---
+
+## ✅ You're Ready!
+
+The SentinelCloud system should now be running locally 🚀
+
+---
+
 
 # Example Workflow
 
