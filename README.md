@@ -208,7 +208,7 @@ git clone https://github.com/alwandeally/SentinelCloud-Security-Monitor.git
 ```
 cd SentinelCloud-Security-Monitor
 ```
---
+
 
 ### 🧱 2. Open the Project in Visual Studio
 
@@ -269,7 +269,8 @@ You will now see:
 
 --
 
-##🔁 6. Full System Workflow
+## 🔁 6. Full System Workflow
+
 1.Upload authentication logs through the web interface
 2.The backend API processes the logs
 3.Suspicious activity is detected
@@ -278,7 +279,8 @@ You will now see:
 
 --
 
-##⚠️ 7.Troubleshooting
+## ⚠️ 7.Troubleshooting
+
 1.If the API does not start → ensure .Api is set as startup project
 2.If the UI shows no data → ensure the API is running
 3.If ports are busy → restart Visual Studio
