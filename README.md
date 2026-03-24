@@ -208,7 +208,7 @@ git clone https://github.com/alwandeally/SentinelCloud-Security-Monitor.git
 ```
 cd SentinelCloud-Security-Monitor
 ```
---
+
 
 ### 🧱 2. Open the Project in Visual Studio
 
@@ -253,7 +253,7 @@ Set as Startup Project
 ```
 F5
 ```
---
+
 ## 5.🖥️ Access the Dashboard
 
 1.Your browser will open:
@@ -267,7 +267,6 @@ You will now see:
 2. Alerts page
 3. Log upload interface
 
---
 
 ## 🔁 6. Full System Workflow
 
@@ -277,7 +276,7 @@ You will now see:
 4. Alerts are generated and displayed
 5. Dashboard updates automatically
 
---
+
 
 ## ⚠️ 7.Troubleshooting
 
