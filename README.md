@@ -36,7 +36,9 @@ SentinelCloud addresses this problem by providing a simplified monitoring system
 
 # System Architecture
 
-![System Architecture](docs/system-architecture.png)
+<p align="center">
+  <img src="docs/system-architecture.png" width="900"/>
+</p>
 
 The system follows a **Clean Architecture** approach separating presentation, API logic, domain logic, and infrastructure.
 
