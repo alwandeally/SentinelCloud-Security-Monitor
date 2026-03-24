@@ -95,7 +95,7 @@ Security alerts include:
 
 ## Alert Resolution
 
-![Alerts](docs/alerts-page.png)
+![Alerts](docs/alerts-resolution.png)
 
 Security analysts can investigate alerts and mark them as **resolved** once the issue has been reviewed.
 
